@@ -1,0 +1,658 @@
+/* =====================================================
+   ZELDA-INSPIRED THEME - Pistachio Green & Black
+   ===================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #C1E1C1 0%, #9BCF9B 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+/* ============ CONTAINER ============ */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ============ HEADER ============ */
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px;
+    background: rgba(193, 225, 193, 0.9);
+    border-radius: 12px;
+    border: 3px solid #000;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.header h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #000 0%, #333 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 4px rgba(193, 225, 193, 0.3);
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.header p {
+    color: #000;
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+/* ============ ZELDA-STYLE TABS ============ */
+.nav-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.nav-tabs button {
+    padding: 14px 28px;
+    background: #000;
+    color: #C1E1C1;
+    border: 2px solid #C1E1C1;
+    border-radius: 0;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    position: relative;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    box-shadow: 0 6px 0 #7CAE7C, 0 8px 12px rgba(0, 0, 0, 0.4);
+}
+
+.nav-tabs button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #7CAE7C, 0 8px 12px rgba(0, 0, 0, 0.4);
+    background: #D1F1D1;
+}
+
+.nav-tabs button.active {
+    background: #C1E1C1;
+    color: #000;
+    border-color: #000;
+    box-shadow: 0 4px 0 #000, 0 6px 8px rgba(0, 0, 0, 0.4); /* Black shadow for pressed look */
+    transform: translateY(2px);
+}
+
+.nav-tabs button:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #000;
+}
+/* ============ ZELDA-STYLE CARDS (WHITE FOR DATASETS) ============ */
+.card {
+    background: white;
+    border-radius: 4px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 2px solid #000;
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #C1E1C1 0%, #9BCF9B 100%);
+}
+
+.card h2 {
+    color: #000;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #C1E1C1;
+    font-weight: 700;
+}
+
+/* ============ ZELDA-STYLE BUTTONS ============ */
+.button-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 14px 28px;
+    border-radius: 0;
+    cursor: pointer;
+    font-weight: 700;
+    border: 2px solid #000;
+    font-family: inherit;
+    transition: all 0.2s;
+    position: relative;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 14px;
+    min-width: 120px;
+    box-shadow: 0 4px 0 #000, 0 6px 8px rgba(0, 0, 0, 0.3);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #000, 0 8px 12px rgba(0, 0, 0, 0.4);
+}
+
+button:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #000;
+}
+
+/* Primary Button - Green */
+.btn-primary {
+    background: linear-gradient(135deg, #C1E1C1 0%, #9BCF9B 100%);
+    color: #000;
+    border-color: #000;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #B1D1B1 0%, #8BBF8B 100%);
+}
+
+/* Secondary Button - Dark Green */
+.btn-secondary {
+    background: linear-gradient(135deg, #7CAE7C 0%, #5A8E5A 100%);
+    color: #000;
+    border-color: #000;
+}
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #6C9E6C 0%, #4A7E4A 100%);
+}
+
+/* Tertiary Button - Light Green */
+.btn-tertiary {
+    background: linear-gradient(135deg, #E1F1E1 0%, #C1E1C1 100%);
+    color: #000;
+    border-color: #000;
+}
+
+.btn-tertiary:hover {
+    background: linear-gradient(135deg, #C1E1C1 0%, #A1D1A1 100%);
+}
+
+/* Danger Button - Red with Green Border */
+.btn-danger {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+    color: white;
+    border-color: #000;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #ff5252 0%, #ff3838 100%);
+}
+
+/* Small Buttons */
+.btn-small {
+    padding: 8px 16px;
+    font-size: 12px;
+    min-width: 80px;
+    box-shadow: 0 3px 0 #000;
+}
+
+.btn-small:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 0 #000;
+}
+
+.btn-small:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 0 #000;
+}
+
+/* ============ ZELDA-STYLE FORMS ============ */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #000;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 0;
+    border: 2px solid #000;
+    font-family: inherit;
+    background: white;
+    font-size: 15px;
+    transition: all 0.3s;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #C1E1C1;
+    box-shadow: 0 0 0 3px rgba(193, 225, 193, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ============ STATUS BOXES ============ */
+.status-box {
+    padding: 15px;
+    border-radius: 0;
+    margin-top: 10px;
+    display: none;
+    border: 2px solid #000;
+    font-weight: 600;
+}
+
+.status-box.success {
+    background: #C1E1C1;
+    color: #000;
+    border-color: #000;
+    display: block;
+}
+
+.status-box.error {
+    background: #ff6b6b;
+    color: white;
+    border-color: #000;
+    display: block;
+}
+
+.status-box.info {
+    background: #B1D1B1;
+    color: #000;
+    border-color: #000;
+    display: block;
+}
+
+/* ============ ZELDA-STYLE STATS ============ */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.stat-card {
+    background: #C1E1C1;
+    padding: 20px;
+    text-align: center;
+    border: 2px solid #000;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-color: #C1E1C1;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #000;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+}
+
+.stat-card div:last-child {
+    color: #000;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+/* ============ TABLES (ZELDA STYLE) ============ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.9rem;
+    border: 2px solid #000;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    vertical-align: top;
+    border: 1px solid #000;
+}
+
+th {
+    background: linear-gradient(135deg, #C1E1C1 0%, #9BCF9B 100%);
+    color: #000;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    border: 1px solid #000;
+}
+td {
+    background: white;
+    color: #000;
+}
+
+/* Inline editing cells */
+.editable-cell {
+    cursor: text;
+    background: white;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.editable-cell:hover {
+    background: #f0f8f0 !important;
+}
+
+.editable-cell:focus {
+    background: #fff !important;
+    outline: 2px solid #C1E1C1;
+    outline-offset: -2px;
+    box-shadow: inset 0 0 0 1px #000;
+}
+
+.readonly-cell {
+    background: #f8f9fa;
+    color: #666;
+    font-size: 13px;
+}
+
+/* Edit feedback */
+.editing {
+    background: #fff3cd !important;
+}
+
+.saved {
+    background: #C1E1C1 !important;
+    transition: background 1s;
+}
+
+.error {
+    background: #ff6b6b !important;
+    color: white !important;
+}
+
+/* ============ ZELDA-STYLE LOADER ============ */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #000;
+    border-radius: 0;
+    border-top-color: #C1E1C1;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============ HELPER TEXT ============ */
+.helper-text {
+    margin-top: 6px;
+    font-size: 0.9rem;
+    color: #000;
+    max-width: 700px;
+    line-height: 1.4;
+    opacity: 0.8;
+}
+
+/* ============ ZELDA-STYLE PROGRESS BAR ============ */
+progress {
+    width: 100%;
+    height: 20px;
+    margin: 10px 0;
+    border-radius: 0;
+    border: 2px solid #000;
+    background: white;
+}
+
+progress::-webkit-progress-bar {
+    background: white;
+    border-radius: 0;
+}
+
+progress::-webkit-progress-value {
+    background: linear-gradient(90deg, #C1E1C1 0%, #9BCF9B 100%);
+    border-radius: 0;
+}
+
+/* ============ DATASET LIST ============ */
+.dataset-list-item {
+    padding: 20px;
+    background: #C1E1C1;
+    border-radius: 0;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid #000;
+    position: relative;
+}
+
+.dataset-list-item:hover {
+    transform: translateX(5px);
+    border-color: #000;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    background: #D1F1D1;
+}
+
+.dataset-list-item h3 {
+    margin-bottom: 8px;
+    color: #000;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.dataset-meta {
+    font-size: 0.9rem;
+    color: #000;
+    line-height: 1.4;
+    opacity: 0.9;
+}
+
+.dataset-meta small {
+    color: #000;
+    opacity: 0.7;
+}
+
+.dataset-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ============ SEARCH ============ */
+.search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 14px;
+    border: 2px solid #000;
+    border-radius: 0;
+    font-size: 15px;
+    background: white;
+    color: #000;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: #C1E1C1;
+    box-shadow: 0 0 0 3px rgba(193, 225, 193, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ============ ZELDA-STYLE MODAL ============ */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(193, 225, 193, 0.9);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 0;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 3px solid #000;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+    position: relative;
+}
+
+.modal-content h2 {
+    color: #000;
+    border-bottom: 2px solid #C1E1C1;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+/* ============ TABS ============ */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ============ ANALYSIS CONTENT ============ */
+#analysisResults {
+    min-height: 100px;
+    padding: 20px 0;
+}
+
+/* ============ ZELDA-STYLE REGION & COUNTY ============ */
+.region-section {
+    margin-top: 25px;
+    border: 2px solid #000;
+    padding: 20px;
+    background: white;
+}
+
+.region-header {
+    background: linear-gradient(135deg, #C1E1C1 0%, #9BCF9B 100%);
+    color: #000;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    border: 2px solid #000;
+}
+
+.region-counties {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.county-row {
+    padding: 10px;
+    border-bottom: 1px solid #C1E1C1;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .header h1 {
+        font-size: 2rem;
+    }
+    
+    .card {
+        padding: 20px;
+    }
+    
+    .button-group {
+        flex-direction: column;
+    }
+    
+    .button-group button {
+        width: 100%;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .nav-tabs {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .nav-tabs button {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+/* Ensure proper spacing for dataset detail */
+#datasetDetailInfo {
+    margin: 20px 0;
+}
+
+/* ============ ZELDA-STYLE SCROLLBAR ============ */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #C1E1C1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #000;
+    border: 2px solid #C1E1C1;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #333;
+}

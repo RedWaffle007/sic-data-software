@@ -1,0 +1,12 @@
+{
+  "name": "Company Data Platform",
+  "short_name": "CompanyData",
+  "description": "Extract, manage and analyze UK company datasets",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary"
+}
+

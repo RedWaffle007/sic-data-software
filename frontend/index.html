@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <link rel="apple-touch-icon" href="/static/icon-192.png">
+    
+    <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>🏢 Software</h1>
+        <p>Extract, Manage & Analyze UK Company Data</p>
+        
+        <div class="nav-tabs">
+            <button onclick="switchTab('extract')" class="active" id="tab-extract">Extract</button>
+            <button onclick="switchTab('datasets')" id="tab-datasets">Datasets</button>
+            <button onclick="switchTab('search')" id="tab-search">Search</button>
+        </div>
+    </div>
+
+    <!-- TAB 1: EXTRACT -->
+    <div id="content-extract" class="tab-content active">
+        <div class="card">
+            <h2>Extract Companies</h2>
+
+            <div class="form-group">
+                <label>SIC Codes</label>
+                <input id="sicCodes" placeholder="e.g., 35300, 62011">
+            </div>
+
+            <div class="form-group">
+                <label>Counties (optional)</label>
+                <textarea id="counties" placeholder="e.g., Essex, Greater London"></textarea>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="extractCompanies()">Extract Companies</button>
+            </div>
+            <p class="helper-text">
+                Fetches a clean company list with Business Name, Company Number, SIC, Address, Postcode and County.
+            </p>
+
+            <div id="extractStatus" class="status-box"></div>
+        </div>
+
+        <!-- CURRENT DATASET -->
+        <div id="datasetCard" class="card results-section" style="display:none;">
+            <h2>Current Extraction Result</h2>
+            <div id="datasetInfo"></div>
+
+            <div class="button-group">
+                <button class="btn-secondary" onclick="analyzeDataset()">📊 Analyze</button>
+                <button class="btn-tertiary" onclick="enrichDataset()">🔍 Enrich</button>
+                <button class="btn-primary" onclick="showSaveModal()">💾 Save to Database</button>
+                <button class="btn-primary" onclick="downloadRaw()">⬇️ Download CSV</button>
+                <button id="download-enriched-btn" class="btn-secondary" onclick="downloadEnriched()" style="display:none;">
+                    ⬇️ Download Enriched CSV
+                </button>
+            </div>
+            <p class="helper-text">
+                <strong>Enrich:</strong> Enhances the dataset with official Companies House data: ownership, officers, company status and incorporation details.
+            </p>
+            <div id="enrichmentStatus" class="status-box"></div>
+        </div>
+
+        <!-- ANALYSIS -->
+        <div id="analysisCard" class="card results-section" style="display:none;">
+            <h2>Dataset Analysis</h2>
+            <div id="analysisResults"></div>
+        </div>
+
+        <!-- ENRICHMENT -->
+        <div id="enrichmentCard" class="card results-section" style="display:none;">
+            <h2>Enrichment Status</h2>
+            <div id="enrichmentProgress"></div>
+            <progress id="enrichmentProgressBar" value="0" max="100" style="display:none;"></progress>
+            <div id="coverageStats"></div>
+        </div>
+    </div>
+
+    <!-- TAB 2: DATASETS -->
+    <div id="content-datasets" class="tab-content">
+        <div class="card">
+            <h2>Saved Datasets</h2>
+            <p class="helper-text">Manage your saved company datasets</p>
+            
+            <div id="datasetsList"></div>
+            <div id="datasetsStatus" class="status-box"></div>
+        </div>
+
+        <!-- DATASET DETAIL -->
+        <div id="datasetDetailCard" class="card" style="display:none;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 id="datasetDetailName">Dataset Name</h2>
+                <button class="btn-small btn-primary" onclick="backToDatasetList()">← Back</button>
+            </div>
+            
+            <div id="datasetDetailInfo"></div>
+
+            <div class="button-group" style="margin-top: 20px;">
+                <button class="btn-secondary" onclick="analyzeCurrentDataset()">📊 Analyze</button>
+                <button class="btn-primary" onclick="exportCurrentDataset('csv')">⬇️ Export CSV</button>
+                <button class="btn-primary" onclick="exportCurrentDataset('xlsx')">⬇️ Export Excel</button>
+                <button class="btn-danger" onclick="deleteCurrentDataset()">🗑️ Delete Dataset</button>
+            </div>
+
+            <h3 style="margin-top: 30px;">Companies</h3>
+            <div id="datasetCompanies"></div>
+            <div id="datasetDetailStatus" class="status-box"></div>
+        </div>
+    </div>
+
+    <!-- TAB 3: SEARCH -->
+    <div id="content-search" class="tab-content">
+        <div class="card">
+            <h2>Search All Datasets</h2>
+            <p class="helper-text">Search across all your saved datasets</p>
+
+            <div class="search-bar">
+                <input id="searchQuery" placeholder="Search by company name, number, postcode..." onkeypress="if(event.key==='Enter') globalSearch()">
+                <button class="btn-primary btn-small" onclick="globalSearch()">Search</button>
+            </div>
+
+            <div id="searchResults"></div>
+            <div id="searchStatus" class="status-box"></div>
+        </div>
+    </div>
+
+</div>
+
+<!-- SAVE DATASET MODAL -->
+<div id="saveModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h2>Save Dataset</h2>
+        <div class="form-group">
+            <label>Dataset Name</label>
+            <input id="saveDatasetName" placeholder="e.g., SIC_35300_London_Jan2026">
+        </div>
+        <div class="form-group">
+            <label>Description (optional)</label>
+            <textarea id="saveDatasetDesc" placeholder="Optional description"></textarea>
+        </div>
+        <div class="button-group">
+            <button class="btn-primary" onclick="saveToDatabase()">Save</button>
+            <button class="btn-secondary" onclick="closeSaveModal()">Cancel</button>
+        </div>
+        <div id="saveModalStatus" class="status-box"></div>
+    </div>
+</div>
+
+<!-- Load scripts ONCE in correct order -->
+<script src="/static/js/ui.js"></script>
+<script src="/static/js/extract.js"></script>
+<script src="/static/js/datasets.js"></script>
+<script src="/static/js/search.js"></script>
+
+<!-- Debug script at the END -->
+<script>
+    // Debug: Check if everything loaded
+    console.log('=== FINAL CHECK ===');
+    console.log('API_BASE:', window.API_BASE);
+    
+    const requiredFunctions = ['switchTab', 'extractCompanies', 'loadDatasets', 'globalSearch'];
+    let allGood = true;
+    
+    requiredFunctions.forEach(func => {
+        if (typeof window[func] !== 'function') {
+            console.error(`❌ ${func} is NOT a function`);
+            allGood = false;
+        } else {
+            console.log(`✅ ${func} is available`);
+        }
+    });
+    
+    if (allGood) {
+        console.log('✅ All functions loaded correctly');
+        // Auto-load datasets if on that tab
+        if (document.getElementById('tab-datasets').classList.contains('active')) {
+            setTimeout(() => {
+                console.log('Auto-loading datasets...');
+                loadDatasets();
+            }, 500);
+        }
+    } else {
+        console.error('❌ Some functions failed to load');
+    }
+</script>
+</body>
+</html>
