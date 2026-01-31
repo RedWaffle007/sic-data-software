@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Software</title>
+    <title>🏢 Software</title>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="/static/manifest.json">
@@ -11,6 +11,81 @@
     <link rel="apple-touch-icon" href="/static/icon-192.png">
     
     <link rel="stylesheet" href="/static/css/app.css">
+    
+    <!-- Add this style for better toggle visibility -->
+    <style>
+        /* Remove duplicate .hidden definition - it's in app.css */
+        /* Fix toggle styling to match app.css */
+        .toggle-option {
+            cursor: pointer;
+            padding: 12px;
+            text-align: center;
+            background: #000;
+            color: #C1E1C1;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: 2px solid #C1E1C1;
+            border-radius: 0;
+            flex: 1;
+            margin: 0;
+            border-right: 1px solid #C1E1C1;
+            position: relative;
+        }
+        .toggle-option:last-child {
+            border-right: none;
+        }
+        .toggle-option.active {
+            background: #C1E1C1;
+            color: #000;
+            font-weight: 700;
+        }
+        .toggle-option input[type="radio"] {
+            display: none;
+        }
+        .toggle-option:hover {
+            background: #D1F1D1;
+            color: #000;
+        }
+        
+        /* Ensure proper visibility */
+        #lettersPerFileSection {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 0;
+            border-left: 4px solid #C1E1C1;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #000;
+        }
+        
+        /* Fix visibility issues */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Ensure proper display for non-hidden sections */
+        #uploadSection {
+            display: block !important;
+        }
+        
+        /* Fix for buttons */
+        .btn {
+            display: inline-block;
+            padding: 14px 28px;
+            border-radius: 0;
+            cursor: pointer;
+            font-weight: 700;
+            border: 2px solid #000;
+            font-family: inherit;
+            transition: all 0.2s;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+            min-width: 120px;
+            box-shadow: 0 4px 0 #000, 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -20,9 +95,11 @@
         <p>Extract, Manage & Analyze UK Company Data</p>
         
         <div class="nav-tabs">
-            <button onclick="switchTab('extract')" class="active" id="tab-extract">Extract</button>
-            <button onclick="switchTab('datasets')" id="tab-datasets">Datasets</button>
-            <button onclick="switchTab('search')" id="tab-search">Search</button>
+            <button onclick="switchTab('extract')" class="active" id="tab-extract">⛏️ Extract</button>
+            <button onclick="switchTab('datasets')" id="tab-datasets">📋 Datasets</button>
+            <button onclick="switchTab('search')" id="tab-search">🔍 Search</button>
+            <button onclick="switchTab('comparison')" id="tab-comparison">📊 Comparison</button>
+            <button onclick="switchTab('letters')" id="tab-letters">📝 Letters</button> 
         </div>
     </div>
 
@@ -33,12 +110,38 @@
 
             <div class="form-group">
                 <label>SIC Codes</label>
-                <input id="sicCodes" placeholder="e.g., 35300, 62011">
+                <input id="sicCodes" placeholder="any sic code">
             </div>
 
             <div class="form-group">
-                <label>Counties (optional)</label>
-                <textarea id="counties" placeholder="e.g., Essex, Greater London"></textarea>
+                <label for="regionFilter">
+                    <strong>Filter by Region (Optional)</strong>
+                    <small style="color:#666;"> - Select one or more regions (Ctrl+Click for multiple)</small>
+                </label>
+                <select id="regionFilter" multiple size="8" onchange="onRegionChange()" class="form-control" style="height: auto;">
+                    <option value="London">London</option>
+                    <option value="South East">South East</option>
+                    <option value="South West">South West</option>
+                    <option value="East">East</option>
+                    <option value="East Midlands">East Midlands</option>
+                    <option value="West Midlands">West Midlands</option>
+                    <option value="North West">North West</option>
+                    <option value="North East">North East</option>
+                </select>
+                <small class="helper-text">Hold Ctrl (Cmd on Mac) and click to select multiple regions</small>
+            </div>
+
+            <div class="form-group">
+                <label>Counties (auto-filled from region selection, or enter manually)</label>
+                <textarea id="counties" placeholder="e.g., Essex, Greater London - Leave empty for all England" rows="3"></textarea>
+                <button 
+                    type="button" 
+                    onclick="clearRegionFilter()" 
+                    class="btn-secondary btn-small"
+                    style="margin-top: 5px; padding: 8px 16px; font-size: 12px;"
+                >
+                    Clear Filter
+                </button>
             </div>
 
             <div class="button-group">
@@ -134,64 +237,330 @@
         </div>
     </div>
 
-</div>
+    <!-- TAB 4: COMPARISON -->
+    <div id="content-comparison" class="tab-content">
+        <div class="card">
+            <h2>📊 Dataset Comparison</h2>
+            <p class="helper-text">Compare initial SIC extraction with your final processed dataset</p>
+        
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
+            
+                <!-- LEFT COLUMN: Initial Extraction -->
+                <div style="border: 2px solid #000; padding: 20px; background: #f8f9fa;">
+                    <h3 style="margin-bottom: 20px; color: #000;">📥 Initial Extraction</h3>
+                
+                    <div class="form-group">
+                        <label>Enter SIC Codes</label>
+                        <input id="comparisonSicCodes" placeholder="any sic code" class="form-control">
+                    </div>
+                
+                    <div class="form-group">
+                        <label>Select Region(s) (Optional)</label>
+                        <select id="comparisonRegionFilter" multiple size="6" onchange="onComparisonRegionChange()" class="form-control" style="height: auto;">
+                            <option value="London">London</option>
+                            <option value="South East">South East</option>
+                            <option value="South West">South West</option>
+                            <option value="East">East</option>
+                            <option value="East Midlands">East Midlands</option>
+                            <option value="West Midlands">West Midlands</option>
+                            <option value="North West">North West</option>
+                            <option value="North East">North East</option>
+                        </select>
+                    </div>
+                
+                    <div class="form-group">
+                        <label>Counties (auto-filled or manual)</label>
+                        <textarea id="comparisonCounties" placeholder="Leave empty for all England" rows="2" class="form-control"></textarea>
+                    </div>
+                
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="loadInitialExtraction()">Load Initial Data</button>
+                        <button class="btn-secondary btn-small" onclick="clearComparisonFilters()">Clear</button>
+                    </div>
+                
+                    <div id="comparisonInitialStatus" class="status-box"></div>
+                </div>
+            
+                <!-- RIGHT COLUMN: Final Processed Dataset -->
+                <div style="border: 2px solid #000; padding: 20px; background: #f8f9fa;">
+                    <h3 style="margin-bottom: 20px; color: #000;">📤 Final Processed Dataset</h3>
+                
+                    <div class="form-group">
+                        <label for="comparisonFileUpload">Upload Final Dataset (Excel/CSV)</label>
+                        <div class="file-upload-area" onclick="document.getElementById('comparisonFileUpload').click()">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">📁</div>
+                            <p><strong>Click to upload your final dataset</strong></p>
+                            <!-- <p class="helper-text">Must include a County or ResolvedCounty column</p> -->
+                        </div>
+                        <input type="file" id="comparisonFileUpload" accept=".csv,.xlsx,.xls" style="display: none;">
+                    </div>
+                
+                    <div id="comparisonFinalFileInfo" style="margin: 10px 0;"></div>
+                
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="analyzeComparisonFinal()" id="analyzeComparisonBtn" disabled>Analyze Final Dataset</button>
+                    </div>
+                
+                    <div id="comparisonFinalStatus" class="status-box"></div>
+                </div>
+            </div>
+        
+            <!-- Side-by-Side Analysis Results -->
+            <div class="comparison-results-container" style="margin-top: 30px;">
+                <div class="comparison-result-column">
+                    <h3>📊 Initial Dataset Analysis</h3>
+                    <div id="comparisonInitialResults"></div>
+                </div>
+                <div class="comparison-result-column">
+                    <h3>📊 Final Dataset Analysis</h3>
+                    <div id="comparisonFinalResults"></div>
+                </div>
+            </div>
+        
+            <!-- Comparison Summary -->
+            <div id="comparisonSummary" style="display: none; margin-top: 40px; padding: 30px; border: 3px solid #C1E1C1; background: white;">
+                <h2 style="text-align: center; margin-bottom: 30px;">📊 Comparison Summary</h2>
+                <div id="comparisonSummaryContent"></div>
+            </div>
+        </div>
+    </div>
 
-<!-- SAVE DATASET MODAL -->
-<div id="saveModal" class="modal" style="display:none;">
-    <div class="modal-content">
-        <h2>Save Dataset</h2>
-        <div class="form-group">
-            <label>Dataset Name</label>
-            <input id="saveDatasetName" placeholder="e.g., SIC_35300_London_Jan2026">
+    <!-- TAB 5: LETTERS (FINAL VERSION - NO RECENT FILES) -->
+    <div id="content-letters" class="tab-content">
+        <div class="card">
+            <h2>📝 Letter Generation</h2>
+            <p class="helper-text">Generate business acquisition letters from company data. <strong>Both data file and template are required.</strong></p>
+                
+            <!-- Data Source Selection -->
+            <div class="form-group">
+                <label>Data Source</label>
+                <div class="toggle-switch" id="dataSourceToggle">
+                    <label class="toggle-option active">
+                        <input type="radio" name="dataSource" value="upload" checked>
+                        Upload File
+                    </label>
+                    <label class="toggle-option">
+                        <input type="radio" name="dataSource" value="dataset">
+                        Use Dataset
+                    </label>
+                </div>
+            </div>
+                
+            <!-- File Upload Section -->
+            <div id="uploadSection">
+                <!-- Data File Upload -->
+                <div class="form-group">
+                    <label for="letterFileUpload">1. Upload Data File (Required)</label>
+                    <div class="file-upload-area" onclick="document.getElementById('letterFileUpload').click()" style="text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">📁</div>
+                        <p style="margin-bottom: 5px;"><strong>Click to upload CSV or Excel file</strong></p>
+                        <p style="font-weight: bold; margin: 0; color: #000;">Supports .csv, .xlsx, .xls formats</p>
+                        <p class="helper-text">Required columns: Title, Fname, Sname, Business Name, Add1, Add2, Town, County, Post Code</p>
+                    </div>
+                    <input type="file" id="letterFileUpload" accept=".csv,.xlsx,.xls" style="display: none;">
+                </div>
+                <div id="fileInfo" style="margin: 10px 0;"></div>
+                
+                <!-- Template Upload Section - MANDATORY -->
+                <div class="form-group" style="margin-top: 25px;">
+                    <label for="templateFileUpload">2. Upload Letter Template (Required)</label>
+                    <div class="file-upload-area" onclick="document.getElementById('templateFileUpload').click()" style="text-align: center; border-color: #dc3545; background: rgba(220, 53, 69, 0.05);">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">📝</div>
+                        <p style="margin-bottom: 5px;"><strong>Click to upload letter template</strong></p>
+                        <p style="font-weight: bold; margin: 0; color: #dc3545;">MANDATORY - .docx format only</p>
+                        <p class="helper-text">Template must include placeholders: {Title}, {Fname}, {Sname}, {Business Name}, {Add1}, {Add2}, {Town}, {County}, {Post Code}</p>
+                    </div>
+                    <input type="file" id="templateFileUpload" accept=".docx" style="display: none;">
+                </div>
+                <div id="templateInfo" style="margin: 10px 0;"></div>
+            </div>
+                
+            <!-- Dataset Selection Section -->
+            <div id="datasetSection" class="hidden">
+                <div class="form-group">
+                    <label for="datasetSelect">Select Dataset</label>
+                    <select id="datasetSelect" class="form-control">
+                        <option value="">-- Select a dataset --</option>
+                        <option value="county_filtered">County Filtered Data</option>
+                        <option value="sic_extracts">SIC Extracts</option>
+                        <option value="enriched">Enriched Data</option>
+                    </select>
+                    <small class="helper-text">Use pre-processed datasets from the system.</small>
+                </div>
+                
+                <!-- Template upload is also required for dataset generation -->
+                <div class="form-group" style="margin-top: 25px;">
+                    <label for="templateFileUpload">Upload Letter Template (Required)</label>
+                    <div class="file-upload-area" onclick="document.getElementById('templateFileUpload').click()" style="text-align: center; border-color: #dc3545; background: rgba(220, 53, 69, 0.05);">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">📝</div>
+                        <p style="margin-bottom: 5px;"><strong>Click to upload letter template</strong></p>
+                        <p style="font-weight: bold; margin: 0; color: #dc3545;">MANDATORY - .docx format only</p>
+                        <p class="helper-text">Template must include placeholders: {Title}, {Fname}, {Sname}, {Business Name}, {Add1}, {Add2}, {Town}, {County}, {Post Code}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OUTPUT FORMAT OPTIONS -->
+            <div class="form-group">
+                <label>Output Format</label>
+                <div class="toggle-switch" id="outputModeToggle">
+                    <label class="toggle-option active">
+                        <input type="radio" name="outputMode" value="zip" checked>
+                        Individual Files
+                    </label>
+                    <label class="toggle-option">
+                        <input type="radio" name="outputMode" value="combined">
+                        Combined Files
+                    </label>
+                </div>
+                <p class="helper-text" id="outputModeLabel">ZIP archive with one letter per DOCX file.</p>
+            </div>
+
+            <!-- LETTERS PER FILE (Only for Combined Mode) -->
+            <div id="lettersPerFileSection" class="form-group hidden">
+                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 0; border: 2px solid #000; margin-top: 10px;">
+                    <label for="lettersPerFile" style="display: block; margin-bottom: 10px;">
+                        <strong>📄 Letters Per DOCX File</strong>
+                        <span style="color: #666; margin-left: 10px;">How many letters in each DOCX file?</span>
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <input 
+                            type="number" 
+                            id="lettersPerFile" 
+                            name="lettersPerFile"
+                            min="1" 
+                            max="100" 
+                            value="5"
+                            placeholder="e.g., 5 letters per file"
+                            style="width: 100px; padding: 8px; border: 2px solid #000; border-radius: 0; font-size: 16px;"
+                        >
+                        <span style="color: #666;">letters per file</span>
+                    </div>
+                </div>
+            </div>
+                
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button id="generateLettersBtn" class="btn-primary" onclick="generateLetters()">
+                    📤 Generate Letters
+                </button>
+                <button class="btn-danger" onclick="clearLetterForm()">
+                    🗑️ Clear All
+                </button>
+            </div>
+                
+            <!-- Status Display -->
+            <div id="letterStatus" class="status-box" style="display: none; margin-top: 15px;"></div>
+            
+            <!-- Information Box -->
+            <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border: 2px solid #000; border-radius: 0;">
+                <h3 style="margin-top: 0; margin-bottom: 15px;">💡 How It Works</h3>
+                <ol style="margin: 0; padding-left: 20px; line-height: 1.8;">
+                    <li><strong>Upload your data file</strong> (CSV or Excel) containing company information</li>
+                    <li><strong>Upload your letter template</strong> (.docx) with placeholders for personalization</li>
+                    <li><strong>Choose output format:</strong>
+                        <ul style="margin-top: 5px;">
+                            <li><strong>Individual Files</strong> - One letter per DOCX file in a ZIP</li>
+                            <li><strong>Combined Files</strong> - Multiple letters per DOCX file (faster to print)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Click Generate Letters</strong> - Your letters will automatically download as a ZIP file</li>
+                </ol>
+                <p style="margin-top: 15px; margin-bottom: 0; padding: 10px; background: white; border-left: 4px solid #C1E1C1;">
+                    <strong>📥 Download Location:</strong> Generated letters will be saved to your default Downloads folder. 
+                    On Mac, this is typically <code>~/Downloads</code>. On Windows, it's <code>C:\Users\[YourName]\Downloads</code>.
+                </p>
+            </div>
         </div>
-        <div class="form-group">
-            <label>Description (optional)</label>
-            <textarea id="saveDatasetDesc" placeholder="Optional description"></textarea>
+    </div>
+    
+    <!-- SAVE DATASET MODAL -->
+    <div id="saveModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2>Save Dataset</h2>
+            <div class="form-group">
+                <label>Dataset Name</label>
+                <input id="saveDatasetName" placeholder="e.g., SIC_35300_London_Jan2026">
+            </div>
+            <div class="form-group">
+                <label>Description (optional)</label>
+                <textarea id="saveDatasetDesc" placeholder="Optional description"></textarea>
+            </div>
+            <div class="button-group">
+                <button class="btn-primary" onclick="saveToDatabase()">Save</button>
+                <button class="btn-secondary" onclick="closeSaveModal()">Cancel</button>
+            </div>
+            <div id="saveModalStatus" class="status-box"></div>
         </div>
-        <div class="button-group">
-            <button class="btn-primary" onclick="saveToDatabase()">Save</button>
-            <button class="btn-secondary" onclick="closeSaveModal()">Cancel</button>
-        </div>
-        <div id="saveModalStatus" class="status-box"></div>
     </div>
 </div>
 
-<!-- Load scripts ONCE in correct order -->
+<!-- Load scripts in correct order -->
 <script src="/static/js/ui.js"></script>
 <script src="/static/js/extract.js"></script>
 <script src="/static/js/datasets.js"></script>
 <script src="/static/js/search.js"></script>
+<script src="/static/js/comparison.js"></script>
+<script src="/static/js/letters.js"></script>
 
-<!-- Debug script at the END -->
+<!-- Simplified initialization -->
 <script>
-    // Debug: Check if everything loaded
-    console.log('=== FINAL CHECK ===');
-    console.log('API_BASE:', window.API_BASE);
-    
-    const requiredFunctions = ['switchTab', 'extractCompanies', 'loadDatasets', 'globalSearch'];
-    let allGood = true;
-    
-    requiredFunctions.forEach(func => {
-        if (typeof window[func] !== 'function') {
-            console.error(`❌ ${func} is NOT a function`);
-            allGood = false;
-        } else {
-            console.log(`✅ ${func} is available`);
-        }
-    });
-    
-    if (allGood) {
-        console.log('✅ All functions loaded correctly');
-        // Auto-load datasets if on that tab
-        if (document.getElementById('tab-datasets').classList.contains('active')) {
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM fully loaded, initializing...');
+        
+        // Check current active tab
+        const activeTab = document.querySelector('.nav-tabs button.active');
+        if (activeTab && activeTab.id === 'tab-letters') {
+            console.log('Letters tab is active on page load');
             setTimeout(() => {
-                console.log('Auto-loading datasets...');
-                loadDatasets();
+                if (window.initLetterGeneration && typeof window.initLetterGeneration === 'function') {
+                    console.log('Calling initLetterGeneration...');
+                    window.initLetterGeneration();
+                } else {
+                    console.error('initLetterGeneration not available');
+                }
             }, 500);
         }
-    } else {
-        console.error('❌ Some functions failed to load');
-    }
+        
+        // Set up event listeners for toggle switches
+        document.querySelectorAll('#outputModeToggle .toggle-option').forEach(option => {
+            option.addEventListener('click', function(e) {
+                console.log('Output mode option clicked');
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                    if (window.updateOutputModeUI && typeof window.updateOutputModeUI === 'function') {
+                        window.updateOutputModeUI();
+                    }
+                }
+            });
+        });
+        
+        // Set up event listeners for data source toggle
+        document.querySelectorAll('#dataSourceToggle .toggle-option').forEach(option => {
+            option.addEventListener('click', function(e) {
+                console.log('Data source option clicked');
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                    if (window.updateDataSourceUI && typeof window.updateDataSourceUI === 'function') {
+                        window.updateDataSourceUI(radio.value);
+                    }
+                }
+            });
+        });
+        
+        // Initialize the output mode on load if we're on letters tab
+        if (activeTab && activeTab.id === 'tab-letters') {
+            setTimeout(() => {
+                if (window.updateOutputModeUI && typeof window.updateOutputModeUI === 'function') {
+                    console.log('Initializing output mode UI...');
+                    window.updateOutputModeUI();
+                }
+            }, 600);
+        }
+    });
 </script>
 </body>
 </html>

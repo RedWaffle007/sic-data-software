@@ -36,12 +36,17 @@ body {
 .header h1 {
     font-size: 3rem;
     margin-bottom: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #000; /* Fallback color */
+}
+
+.header-text {
     background: linear-gradient(135deg, #000 0%, #333 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 2px 4px rgba(193, 225, 193, 0.3);
-    font-weight: 800;
-    letter-spacing: 1px;
+    display: inline-block; /* Needed for gradient to work properly */
 }
 
 .header p {
@@ -85,7 +90,7 @@ body {
     background: #C1E1C1;
     color: #000;
     border-color: #000;
-    box-shadow: 0 4px 0 #000, 0 6px 8px rgba(0, 0, 0, 0.4); /* Black shadow for pressed look */
+    box-shadow: 0 4px 0 #000, 0 6px 8px rgba(0, 0, 0, 0.4);
     transform: translateY(2px);
 }
 
@@ -93,6 +98,7 @@ body {
     transform: translateY(4px);
     box-shadow: 0 2px 0 #000;
 }
+
 /* ============ ZELDA-STYLE CARDS (WHITE FOR DATASETS) ============ */
 .card {
     background: white;
@@ -223,6 +229,13 @@ button:active {
     margin-bottom: 20px;
 }
 
+/* Fix for form-group when hidden */
+.form-group.hidden {
+    margin-bottom: 0;
+    height: 0;
+    overflow: hidden;
+}
+
 label {
     display: block;
     margin-bottom: 8px;
@@ -260,30 +273,27 @@ select:focus {
     padding: 15px;
     border-radius: 0;
     margin-top: 10px;
-    display: none;
     border: 2px solid #000;
     font-weight: 600;
+    display: none;
 }
 
 .status-box.success {
     background: #C1E1C1;
     color: #000;
     border-color: #000;
-    display: block;
 }
 
 .status-box.error {
     background: #ff6b6b;
     color: white;
     border-color: #000;
-    display: block;
 }
 
 .status-box.info {
     background: #B1D1B1;
     color: #000;
     border-color: #000;
-    display: block;
 }
 
 /* ============ ZELDA-STYLE STATS ============ */
@@ -655,4 +665,405 @@ progress::-webkit-progress-value {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #333;
+}
+
+/* ============ LETTER GENERATION STYLES ============ */
+
+.toggle-switch {
+    display: flex;
+    background: #000;
+    border: 2px solid #C1E1C1;
+    border-radius: 0;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.toggle-option {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    background: #000;
+    color: #C1E1C1;
+    font-weight: 600;
+    transition: all 0.2s;
+    border-right: 1px solid #C1E1C1;
+    position: relative;
+}
+
+.toggle-option:last-child {
+    border-right: none;
+}
+
+.toggle-option.active {
+    background: #C1E1C1;
+    color: #000;
+    font-weight: 700;
+}
+
+.toggle-option input {
+    display: none;
+}
+
+.toggle-option:hover {
+    background: #D1F1D1;
+    color: #000;
+}
+
+.toggle-option:active {
+    transform: scale(0.98);
+}
+
+.file-upload-area {
+    border: 3px dashed #000;
+    background: rgba(193, 225, 193, 0.1);
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin: 10px 0;
+}
+
+.file-upload-area:hover {
+    background: rgba(193, 225, 193, 0.2);
+    border-color: #C1E1C1;
+}
+
+.file-info {
+    background: #C1E1C1;
+    padding: 12px;
+    border: 2px solid #000;
+    margin-top: 10px;
+    font-weight: 600;
+}
+
+.file-list {
+    margin-top: 15px;
+}
+
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #C1E1C1;
+    border: 2px solid #000;
+    margin-bottom: 8px;
+    transition: all 0.3s;
+}
+
+.file-item:hover {
+    background: #D1F1D1;
+    transform: translateX(3px);
+}
+
+.file-icon {
+    font-size: 1.5rem;
+    margin-right: 10px;
+}
+
+.file-details {
+    flex: 1;
+}
+
+.file-details small {
+    color: #000;
+    opacity: 0.7;
+    display: block;
+    margin-top: 2px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    background: rgba(193, 225, 193, 0.1);
+    border: 2px dashed #000;
+}
+
+/* FIX: Hidden class - ensure it works properly */
+.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+/* Make sure non-hidden elements are visible */
+#uploadSection:not(.hidden),
+#datasetSection:not(.hidden),
+#lettersPerFileSection:not(.hidden) {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    overflow: visible !important;
+}
+
+/* Responsive grid for letter options */
+@media (max-width: 768px) {
+    #content-letters .card > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .toggle-switch {
+        flex-direction: column;
+    }
+    
+    .toggle-option {
+        border-right: none;
+        border-bottom: 1px solid #C1E1C1;
+    }
+    
+    .toggle-option:last-child {
+        border-bottom: none;
+    }
+}
+
+/* Loading animation for generate button */
+#generateLettersBtn .loading {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #000;
+    border-radius: 0;
+    border-top-color: #C1E1C1;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* Base button class for consistency */
+.btn {
+    display: inline-block;
+    text-decoration: none;
+}
+
+/* Form control consistency */
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #000;
+    border-radius: 0;
+    font-family: inherit;
+    font-size: 15px;
+    background: white;
+    color: #000;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #C1E1C1;
+    box-shadow: 0 0 0 3px rgba(193, 225, 193, 0.3), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Letter generation specific styles */
+.file-upload-area {
+    cursor: pointer;
+}
+
+.file-upload-area:hover {
+    background: rgba(193, 225, 193, 0.3);
+}
+
+/* Letter preview content */
+#letterPreviewContent {
+    font-family: 'Times New Roman', serif;
+    line-height: 1.6;
+    padding: 20px;
+    border: 2px solid #000;
+    background: white;
+    margin-top: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Make toggle switch labels clickable */
+.toggle-switch label {
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+    padding: 12px;
+    display: block;
+    width: 100%;
+}
+
+/* Ensure forms in letters tab have proper spacing */
+#content-letters .form-group {
+    margin-bottom: 25px;
+}
+
+/* Letters per file section - FIXED */
+#lettersPerFileSection {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 0;
+    border-left: 4px solid #C1E1C1;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: 2px solid #000;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+/* Ensure letters per file section is visible when not hidden */
+#lettersPerFileSection:not(.hidden) {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+}
+
+/* Fix for form elements inside letters per file section */
+#lettersPerFileSection input[type="number"] {
+    width: auto;
+    min-width: 80px;
+    display: inline-block;
+}
+
+/* Make sure status boxes show properly */
+.status-box.success,
+.status-box.error,
+.status-box.info {
+    display: block !important;
+}
+
+/* Fix for empty state in file list */
+.empty-state {
+    display: block !important;
+}
+
+/* Fix for tab content visibility */
+.tab-content.active {
+    display: block !important;
+}
+
+/* Fix for any element that should be visible but might be affected by other rules */
+[style*="display: none"] {
+    display: none !important;
+}
+
+[style*="display: block"] {
+    display: block !important;
+}
+
+/* Ensure proper contrast for helper text in letters section */
+#content-letters .helper-text {
+    color: #000;
+    opacity: 0.9;
+}
+
+/* Fix for recent files grid */
+#recentFilesList > div {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+/* Ensure buttons in recent files have proper styling */
+#recentFilesList button {
+    background: #000;
+    color: #C1E1C1;
+    border: 2px solid #C1E1C1;
+    border-radius: 0;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+#recentFilesList button:hover {
+    background: #C1E1C1;
+    color: #000;
+}
+
+/* ============ COMPARISON TAB STYLES ============ */
+
+.comparison-results-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    align-items: start;
+    margin-top: 30px;
+}
+
+.comparison-result-column {
+    border: 2px solid #000;
+    padding: 20px;
+    background: white;
+    border-radius: 0;
+    min-height: 200px;
+}
+
+.comparison-result-column h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #000;
+    border-bottom: 2px solid #C1E1C1;
+    padding-bottom: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Ensure both columns start at the same height */
+.comparison-result-column > div {
+    width: 100%;
+}
+
+/* Regional breakdown styling for comparison */
+.comparison-result-column .region-section {
+    margin-bottom: 15px;
+    border: 1px solid #C1E1C1;
+    background: white;
+}
+
+.comparison-result-column .region-header {
+    background: #C1E1C1;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    border: none;
+    margin-bottom: 0;
+}
+
+.comparison-result-column .county-row {
+    padding: 5px 10px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Responsive design for comparison */
+@media (max-width: 1024px) {
+    .comparison-results-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .comparison-result-column {
+        width: 100%;
+    }
+}
+
+/* Empty state for comparison results */
+.comparison-result-column:empty::after {
+    content: 'No data loaded yet';
+    display: block;
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Highlight when data is loaded */
+.comparison-result-column:not(:empty) {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }

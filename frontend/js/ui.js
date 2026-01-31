@@ -16,6 +16,18 @@ window.currentSicCodes = window.currentSicCodes || [];
 window.currentCounties = window.currentCounties || null;
 window.currentViewDatasetId = window.currentViewDatasetId || null;
 
+// England regions for dropdown
+window.ENGLAND_REGIONS = {
+    "North West": ["Cheshire", "Cumbria", "Greater Manchester", "Lancashire", "Merseyside"],
+    "North East": ["County Durham", "Northumberland", "Tyne and Wear"],
+    "West Midlands": ["Herefordshire", "Shropshire", "Staffordshire", "Warwickshire", "West Midlands", "Worcestershire"],
+    "East Midlands": ["Derbyshire", "Leicestershire", "Lincolnshire", "Northamptonshire", "Nottinghamshire", "Rutland"],
+    "East": ["Bedfordshire", "Cambridgeshire", "Essex", "Hertfordshire", "Norfolk", "Suffolk"],
+    "South West": ["Bristol", "Cornwall", "Devon", "Dorset", "Gloucestershire", "Somerset", "Wiltshire"],
+    "South East": ["Berkshire", "Buckinghamshire", "East Sussex", "Hampshire", "Isle of Wight", "Kent", "Oxfordshire", "Surrey", "West Sussex"],
+    "London": ["Greater London"]
+};
+
 // =====================================================
 // TAB SWITCHING
 // =====================================================
@@ -25,6 +37,7 @@ function switchTab(tab) {
     // Hide all tab contents
     document.querySelectorAll(".tab-content").forEach(el => {
         el.classList.remove("active");
+        el.style.display = 'none';
     });
     
     // Deactivate all tab buttons
@@ -36,6 +49,7 @@ function switchTab(tab) {
     const contentElement = document.getElementById(`content-${tab}`);
     if (contentElement) {
         contentElement.classList.add("active");
+        contentElement.style.display = 'block';
     }
     
     // Activate selected tab button
@@ -49,6 +63,75 @@ function switchTab(tab) {
         console.log('Auto-loading datasets...');
         window.loadDatasets();
     }
+    
+    // Load recent letters if on letters tab
+    if (tab === "letters") {
+        setTimeout(() => {
+            if (typeof window.initLetterGeneration === "function") {
+                console.log('Initializing letter generation...');
+                window.initLetterGeneration();
+            } else {
+                console.error('initLetterGeneration not found!');
+            }
+        
+            if (typeof window.loadRecentLetters === "function") {
+                console.log('Loading recent letters...');
+                window.loadRecentLetters();
+            }
+        }, 100);
+    }
+    
+    // Load files list if on collaborate tab
+    if (tab === "collaborate") {
+        setTimeout(() => {
+            if (typeof window.loadFilesList === "function") {
+                console.log('Loading collaborative files...');
+                window.loadFilesList();
+            }
+        }, 100);
+    }
+}
+
+// =====================================================
+// REGION FILTER FUNCTIONS (MULTI-SELECT VERSION)
+// =====================================================
+function onRegionChange() {
+    const regionSelect = document.getElementById("regionFilter");
+    const countiesInput = document.getElementById("counties");
+    
+    // Get all selected regions
+    const selectedOptions = Array.from(regionSelect.selectedOptions);
+    const selectedRegions = selectedOptions.map(option => option.value);
+    
+    if (selectedRegions.length > 0) {
+        // Collect all counties from all selected regions
+        const allCounties = [];
+        selectedRegions.forEach(region => {
+            if (window.ENGLAND_REGIONS[region]) {
+                allCounties.push(...window.ENGLAND_REGIONS[region]);
+            }
+        });
+        
+        // Remove duplicates
+        const uniqueCounties = [...new Set(allCounties)];
+        
+        // Populate counties field
+        countiesInput.value = uniqueCounties.join(", ");
+    } else {
+        // If no regions selected, clear counties field
+        countiesInput.value = "";
+    }
+}
+
+function clearRegionFilter() {
+    const regionSelect = document.getElementById("regionFilter");
+    
+    // Deselect all options
+    Array.from(regionSelect.options).forEach(option => {
+        option.selected = false;
+    });
+    
+    document.getElementById("counties").value = "";
 }
 
 // =====================================================
@@ -78,7 +161,7 @@ function showStatus(id, message, type = "") {
 // =====================================================
 function showSaveModal() {
     console.log('Showing save modal');
-    document.getElementById('saveModal').style.display = 'block';
+    document.getElementById('saveModal').style.display = 'flex';
 }
 
 function closeSaveModal() {
@@ -103,7 +186,6 @@ function backToDatasetList() {
 // ANALYSIS DISPLAY HELPER
 // =====================================================
 function displayAnalysis(a) {
-    // Ensure we have valid data
     if (!a || typeof a !== 'object') {
         return '<p style="color:#999; padding:20px;">No analysis data available</p>';
     }
@@ -118,7 +200,7 @@ function displayAnalysis(a) {
                 countyRows = region.counties.map(county => `
                     <div class="county-row">
                         <span>${county.county}</span>
-                        <span><strong>${county.count.toLocaleString()}</strong> (${county.percentage})</span>
+                        <span><strong>${county.count.toLocaleString()}</strong></span>
                     </div>
                 `).join("");
             }
@@ -297,7 +379,6 @@ function renderCompaniesTable(containerId, companies, datasetId) {
         </div>
     `;
     
-    // Enable inline editing
     enableInlineEditing(datasetId);
 }
 
@@ -306,7 +387,6 @@ function renderCompaniesTable(containerId, companies, datasetId) {
 // =====================================================
 function enableInlineEditing(datasetId) {
     document.querySelectorAll(".editable-cell").forEach(cell => {
-        // Store original value
         cell.dataset.originalValue = cell.innerText.trim();
         
         cell.addEventListener("blur", () => {
@@ -326,17 +406,12 @@ async function saveCell(cell, datasetId) {
     const companyId = cell.dataset.companyId;
     const field = cell.dataset.field;
     const value = cell.innerText.trim();
-    
-    // Save original value in case of failure
     const originalValue = cell.dataset.originalValue || cell.innerText;
     
-    // Visual feedback - editing state
     cell.style.background = "#fff3cd";
     cell.classList.add('editing');
     
     try {
-        console.log(`Saving company ${companyId}, field ${field}: ${value}`);
-        
         const res = await fetch(
             `${window.API_BASE}/api/companies/${companyId}`,
             {
@@ -346,20 +421,16 @@ async function saveCell(cell, datasetId) {
             }
         );
         
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         
         const data = await res.json();
         if (!data.success) throw new Error("Save failed");
         
-        // Success feedback
         cell.style.background = "#d4edda";
         cell.classList.remove('editing');
         cell.classList.add('saved');
-        cell.dataset.originalValue = value; // Update original value
+        cell.dataset.originalValue = value;
         
-        // Remove saved class after animation
         setTimeout(() => {
             cell.classList.remove('saved');
             cell.style.background = "";
@@ -368,7 +439,6 @@ async function saveCell(cell, datasetId) {
     } catch (err) {
         console.error("Save failed:", err);
         
-        // Revert to original value
         cell.innerText = originalValue;
         cell.style.background = "#f8d7da";
         cell.classList.remove('editing');
@@ -386,4 +456,12 @@ async function saveCell(cell, datasetId) {
 // =====================================================
 document.addEventListener('DOMContentLoaded', () => {
     console.log('UI.js initialized');
+    
+    // Expose functions globally for HTML onclick
+    window.switchTab = switchTab;
+    window.showSaveModal = showSaveModal;
+    window.closeSaveModal = closeSaveModal;
+    window.backToDatasetList = backToDatasetList;
+    window.onRegionChange = onRegionChange;
+    window.clearRegionFilter = clearRegionFilter;
 });
