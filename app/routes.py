@@ -16,6 +16,9 @@ from unittest import result
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Response
 from pydantic import BaseModel, Field
 import polars as pl
+from fastapi import UploadFile, File
+import io
+from datetime import datetime
 
 from app.services.pipeline_orchestrator import (
     execute_pipeline,
@@ -368,6 +371,159 @@ async def download_result(job_id: str, format: str = "csv"):
     except Exception as e:
         logger.error(f"Download failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
+
+
+@router.post("/api/comparison/analyze-final")
+async def analyze_final_dataset(file: UploadFile = File(...)):
+    """
+    Analyze uploaded final dataset (Excel or CSV) for comparison.
+    Returns same format as analyze_dataset for side-by-side comparison.
+    """
+    try:
+        logger.info(f"Comparison analysis started for file: {file.filename}")
+        
+        # Import required functions from dataset_analysis
+        from app.services.dataset_analysis import (
+            normalize_county,
+            is_england_county,
+            ENGLAND_REGIONS
+        )
+        
+        # Read the uploaded file
+        contents = await file.read()
+        
+        # Determine file type and read accordingly
+        if file.filename.endswith('.csv'):
+            df = pl.read_csv(io.BytesIO(contents))
+        elif file.filename.endswith(('.xlsx', '.xls')):
+            df = pl.read_excel(io.BytesIO(contents))
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported file format. Use CSV or Excel.")
+        
+        logger.info(f"File loaded: {df.height} rows, {len(df.columns)} columns")
+        
+        # Check for county column
+        county_col = None
+        for col in df.columns:
+            col_lower = col.lower().strip()
+            if col_lower in ['county', 'resolvedcounty', 'resolved_county', 'resolved county']:
+                county_col = col
+                break
+        
+        if not county_col:
+            logger.error(f"No county column found. Available columns: {df.columns}")
+            raise HTTPException(
+                status_code=400, 
+                detail=f"File must contain a 'County' or 'ResolvedCounty' column. Found columns: {', '.join(df.columns)}"
+            )
+        
+        logger.info(f"Using county column: {county_col}")
+        
+        # Analyze the dataframe
+        total = df.height
+        
+        if total == 0:
+            return {
+                "success": True,
+                "analysis": {
+                    "summary": {
+                        "total_companies": 0,
+                        "total_england_companies": 0,
+                        "unique_counties": 0,
+                        "analysis_timestamp": datetime.now().isoformat(),
+                    },
+                    "regional_distribution": [],
+                    "data_quality_score": 0,
+                },
+                "filename": file.filename,
+                "total_rows": 0
+            }
+        
+        # Filter for England only
+        england_df = df.filter(
+            pl.col(county_col)
+            .map_elements(
+                lambda x: is_england_county(str(x)) if x and str(x).strip() else False, 
+                return_dtype=pl.Boolean
+            )
+        )
+        
+        total_england = england_df.height
+        logger.info(f"England companies: {total_england} out of {total}")
+        
+        # Regional Distribution
+        regional_distribution = []
+        
+        if total_england > 0:
+            # Get county counts
+            county_counts = (
+                england_df.filter(pl.col(county_col) != "")
+                .group_by(county_col)
+                .agg(pl.count().alias("count"))
+            )
+            
+            # Convert to dict (normalized keys)
+            county_dict = {}
+            for row in county_counts.iter_rows(named=True):
+                county_name = row[county_col]
+                normalized = normalize_county(str(county_name))
+                count = int(row["count"])
+                county_dict[normalized] = count
+            
+            logger.info(f"County distribution: {county_dict}")
+            
+            # Build regional distribution
+            for region_name, region_data in ENGLAND_REGIONS.items():
+                region_total = 0
+                county_breakdown = []
+                
+                for county in region_data["counties"]:
+                    normalized = normalize_county(county)
+                    count = county_dict.get(normalized, 0)
+                    region_total += count
+                    
+                    if count > 0:
+                        county_breakdown.append({
+                            "county": county,
+                            "count": count
+                        })
+                
+                if region_total > 0:
+                    regional_distribution.append({
+                        "region": region_name,
+                        "region_code": region_data["code"],
+                        "count": region_total,
+                        "percentage": f"{region_total / total_england * 100:.1f}%",
+                        "counties": county_breakdown
+                    })
+        
+        unique_england_counties = len([c for region in regional_distribution for c in region["counties"]])
+        
+        analysis = {
+            "summary": {
+                "total_companies": int(total),
+                "total_england_companies": int(total_england),
+                "unique_counties": int(unique_england_counties),
+                "analysis_timestamp": datetime.now().isoformat(),
+            },
+            "regional_distribution": regional_distribution,
+            "data_quality_score": 100,
+        }
+        
+        logger.info(f"Analysis complete: {total_england} England companies across {len(regional_distribution)} regions")
+        
+        return {
+            "success": True,
+            "analysis": analysis,
+            "filename": file.filename,
+            "total_rows": df.height
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Comparison analysis failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 
 @router.get("/api/health")

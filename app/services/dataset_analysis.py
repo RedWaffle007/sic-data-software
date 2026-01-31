@@ -46,7 +46,7 @@ ENGLAND_REGIONS = {
     },
     "London": {
         "code": "L",
-        "counties": ["City of London", "Greater London"]
+        "counties": ["Greater London"]
     }
 }
 
@@ -82,7 +82,7 @@ def normalize_county(county: str) -> str:
     
     s = county.strip().lower()
     
-    # Special case: London variants
+    # Special case: London variants (City of London and Greater London both map to Greater London)
     if "london" in s:
         return "Greater London"
     
@@ -204,8 +204,7 @@ def analyze_dataset(dataset_file: str) -> Dict[str, any]:
                 if count > 0:  # Only include counties with data
                     county_breakdown.append({
                         "county": county,
-                        "count": count,
-                        "percentage": f"{count / total_england * 100:.1f}%" if total_england > 0 else "0.0%"
+                        "count": count
                     })
             
             # Add region entry
