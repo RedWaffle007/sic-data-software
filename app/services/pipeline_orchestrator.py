@@ -2,18 +2,18 @@
 Pipeline Orchestrator: Complete Multi-Stage Flow
 
 Conditional Logic:
-    - Always runs: A → C (county resolution always happens)
-    - C filters ONLY if counties provided
+    - Always runs: A → C
+    - C filters by explicit CSV county ONLY if counties provided
 
 Script Responsibilities:
     A: Extract all companies for SIC codes (cached)
-    C: ALWAYS resolve counties, optionally filter (auto-runs every time)
+    C: Filter by explicit CSV County if counties specified, otherwise return all (auto-runs every time)
     B: Analyze dataset (user-triggered, read-only)
     D: Enrich dataset (user-triggered)
 
 Job States:
     - sic_extracted
-    - county_resolved (always happens now)
+    - county_filtered (if counties specified) OR all_companies (if no counties)
 """
 
 import logging
@@ -37,8 +37,9 @@ def execute_pipeline(
     Execute complete pipeline based on parameters.
 
     Flow Logic:
-        ALWAYS:  A → C (county resolution always happens)
-        C filters ONLY if counties parameter provided
+        ALWAYS:  A → C
+        C filters by explicit CSV County ONLY if counties parameter provided
+        Otherwise returns all companies (no postcode mapping)
     """
 
     # Local imports to avoid circular dependencies
@@ -56,7 +57,8 @@ def execute_pipeline(
     logger.info("PIPELINE EXECUTION")
     logger.info("=" * 70)
     logger.info(f"SIC Codes: {sic_codes}")
-    logger.info(f"Counties Filter: {counties if counties else 'None (show all resolved counties)'}")
+    logger.info(f"Counties Filter: {counties if counties else 'None (return all companies)'}")
+    logger.info(f"Data Source: {csv_path}")
     logger.info("=" * 70)
 
     stages_completed = []
@@ -85,14 +87,15 @@ def execute_pipeline(
     logger.info(f"  Output: {sic_result['output_file']}")
     logger.info(f"  From cache: {sic_result.get('from_cache', False)}")
 
-    # ============ STAGE C: COUNTY RESOLUTION (ALWAYS) + OPTIONAL FILTERING ============
+    # ============ STAGE C: COUNTY FILTERING (IF COUNTIES SPECIFIED) ============
     logger.info("")
     if counties:
-        logger.info("▶ STAGE C: County Resolution + Filtering")
+        logger.info("▶ STAGE C: County Filtering (Explicit CSV County Only)")
         logger.info(f"  Filter: {counties}")
+        logger.info("  Note: Only companies with explicit county in CSV will be included")
     else:
-        logger.info("▶ STAGE C: County Resolution (No Filter)")
-        logger.info("  All resolved counties will be included")
+        logger.info("▶ STAGE C: No County Filter - Returning All Companies")
+        logger.info("  Note: All companies returned regardless of county field")
     logger.info("-" * 70)
 
     county_result = resolve_and_filter_by_county(
@@ -104,29 +107,38 @@ def execute_pipeline(
         force_refresh=force_refresh
     )
 
-    stages_completed.append("county_resolution")
+    # Always append 'county_filtering' to stages (even if no filter applied)
+    stages_completed.append("county_filtering")
+    
+    if counties:
+        pipeline_state = "county_filtered"
+    else:
+        pipeline_state = "all_companies"
 
     stats = county_result["stats"]
-    total_after = stats.get("after_filter", 0)
+    total_after = stats.get("total_companies", 0)  # Use total_companies directly
     total_before = stats.get("before_filter", 0)
 
-    stage_results["county_resolution"] = {
+    # Always use 'county_filtering' key for consistency
+    stage_results["county_filtering"] = {
         "output_file": county_result["output_file"],
         "total_companies": total_after,
         "total_before_filter": total_before,
         "from_cache": county_result.get("from_cache", False),
-        "stats": stats
+        "stats": stats  # This contains total_companies too
     }
 
     current_dataset = county_result["output_file"]
-    pipeline_state = "county_resolved"
 
     logger.info(f"✓ Stage C complete: {total_after:,} companies")
     logger.info(f"  Output: {current_dataset}")
     if counties:
-        logger.info(f"  Filtered: {total_before:,} → {total_after:,}")
+        logger.info(f"  Filtered by explicit CSV county: {total_before:,} → {total_after:,}")
+        logger.info(f"  Companies with explicit county: {stats.get('companies_with_explicit_county', 0):,}")
     else:
-        logger.info(f"  Resolved: {stats.get('direct_county', 0):,} from CSV, {stats.get('postcode_resolved', 0):,} from postcode")
+        logger.info(f"  All companies returned (no filtering)")
+        logger.info(f"  Companies with county: {stats.get('companies_with_explicit_county', 0):,}")
+        logger.info(f"  Companies without county: {stats.get('companies_without_county', 0):,}")
     logger.info(f"  From cache: {county_result.get('from_cache', False)}")
 
     # ============ PIPELINE COMPLETE ============

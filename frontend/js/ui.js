@@ -28,6 +28,24 @@ window.ENGLAND_REGIONS = {
     "London": ["Greater London"]
 };
 
+// Scotland counties for dropdown
+window.SCOTLAND_COUNTIES = [
+    "Aberdeen",
+    "Dundee", 
+    "Dumfries",
+    "Edinburgh",
+    "Falkirk",
+    "Glasgow",
+    "Inverness",
+    "Kilmarnock",
+    "Kirkwall",
+    "Kirkcaldy",
+    "Motherwell",
+    "Paisley",
+    "Perth",
+    "Galashiels"
+];
+
 // =====================================================
 // TAB SWITCHING
 // =====================================================
@@ -93,45 +111,61 @@ function switchTab(tab) {
 }
 
 // =====================================================
-// REGION FILTER FUNCTIONS (MULTI-SELECT VERSION)
+// COMBINED ENGLAND + SCOTLAND FILTER FUNCTIONS
 // =====================================================
-function onRegionChange() {
-    const regionSelect = document.getElementById("regionFilter");
+function updateCountiesField() {
     const countiesInput = document.getElementById("counties");
+    const allCounties = [];
     
-    // Get all selected regions
-    const selectedOptions = Array.from(regionSelect.selectedOptions);
-    const selectedRegions = selectedOptions.map(option => option.value);
+    // Get England counties from region selection
+    const regionSelect = document.getElementById("regionFilter");
+    const selectedRegions = Array.from(regionSelect.selectedOptions).map(opt => opt.value);
     
-    if (selectedRegions.length > 0) {
-        // Collect all counties from all selected regions
-        const allCounties = [];
-        selectedRegions.forEach(region => {
-            if (window.ENGLAND_REGIONS[region]) {
-                allCounties.push(...window.ENGLAND_REGIONS[region]);
-            }
-        });
-        
-        // Remove duplicates
-        const uniqueCounties = [...new Set(allCounties)];
-        
-        // Populate counties field
+    selectedRegions.forEach(region => {
+        if (window.ENGLAND_REGIONS[region]) {
+            allCounties.push(...window.ENGLAND_REGIONS[region]);
+        }
+    });
+    
+    // Get Scotland counties from county selection
+    const scotlandSelect = document.getElementById("scotlandCountyFilter");
+    const selectedScotlandCounties = Array.from(scotlandSelect.selectedOptions).map(opt => opt.value);
+    
+    allCounties.push(...selectedScotlandCounties);
+    
+    // Remove duplicates and join
+    const uniqueCounties = [...new Set(allCounties)];
+    
+    if (uniqueCounties.length > 0) {
         countiesInput.value = uniqueCounties.join(", ");
     } else {
-        // If no regions selected, clear counties field
         countiesInput.value = "";
     }
 }
 
+function onRegionChange() {
+    updateCountiesField();
+}
+
+function onScotlandCountyChange() {
+    updateCountiesField();
+}
+
 function clearRegionFilter() {
     const regionSelect = document.getElementById("regionFilter");
+    const scotlandSelect = document.getElementById("scotlandCountyFilter");
+    const countiesInput = document.getElementById("counties");
     
     // Deselect all options
     Array.from(regionSelect.options).forEach(option => {
         option.selected = false;
     });
+    Array.from(scotlandSelect.options).forEach(option => {
+        option.selected = false;
+    });
     
-    document.getElementById("counties").value = "";
+    // Clear counties
+    countiesInput.value = "";
 }
 
 // =====================================================
@@ -463,5 +497,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.closeSaveModal = closeSaveModal;
     window.backToDatasetList = backToDatasetList;
     window.onRegionChange = onRegionChange;
+    window.onScotlandCountyChange = onScotlandCountyChange;
     window.clearRegionFilter = clearRegionFilter;
 });

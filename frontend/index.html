@@ -113,12 +113,27 @@
                 <input id="sicCodes" placeholder="any sic code">
             </div>
 
+            
+            <!-- NEW: Country Selection
+            <div class="form-group">
+                <label for="countryFilter">
+                    <strong>Select Country (Optional)</strong>
+                </label>
+                <select id="countryFilter" onchange="onCountryChange()" class="form-control">
+                    <option value="">-- Select Country --</option>
+                    <option value="england">England</option>
+                    <option value="scotland">Scotland</option>
+                </select>
+                <small class="helper-text">Filter companies by country</small>
+            </div> -->
+
+            <!-- ENGLAND REGION FILTER (Always Visible) -->
             <div class="form-group">
                 <label for="regionFilter">
-                    <strong>Filter by Region (Optional)</strong>
+                    <strong>🏴󠁧󠁢󠁥󠁮󠁧󠁿 Filter by England Region (Optional)</strong>
                     <small style="color:#666;"> - Select one or more regions (Ctrl+Click for multiple)</small>
                 </label>
-                <select id="regionFilter" multiple size="8" onchange="onRegionChange()" class="form-control" style="height: auto;">
+                <select id="regionFilter" multiple size="6" onchange="onRegionChange()" class="form-control" style="height: auto;">
                     <option value="London">London</option>
                     <option value="South East">South East</option>
                     <option value="South West">South West</option>
@@ -131,16 +146,41 @@
                 <small class="helper-text">Hold Ctrl (Cmd on Mac) and click to select multiple regions</small>
             </div>
 
+            <!-- SCOTLAND COUNTY FILTER (Always Visible) -->
             <div class="form-group">
-                <label>Counties (auto-filled from region selection, or enter manually)</label>
-                <textarea id="counties" placeholder="e.g., Essex, Greater London - Leave empty for all England" rows="3"></textarea>
+                <label for="scotlandCountyFilter">
+                    <strong>🏴󠁧󠁢󠁳󠁣󠁴󠁿 Filter by Scotland County (Optional)</strong>
+                    <small style="color:#666;"> - Select one or more counties (Ctrl+Click for multiple)</small>
+                </label>
+                <select id="scotlandCountyFilter" multiple size="6" onchange="onScotlandCountyChange()" class="form-control" style="height: auto;">
+                    <option value="Aberdeen">Aberdeen</option>
+                    <option value="Dundee">Dundee</option>
+                    <option value="Dumfries">Dumfries</option>
+                    <option value="Edinburgh">Edinburgh</option>
+                    <option value="Falkirk">Falkirk</option>
+                    <option value="Glasgow">Glasgow</option>
+                    <option value="Inverness">Inverness</option>
+                    <option value="Kilmarnock">Kilmarnock</option>
+                    <option value="Kirkwall">Kirkwall (Orkney)</option>
+                    <option value="Kirkcaldy">Kirkcaldy (Fife)</option>
+                    <option value="Motherwell">Motherwell</option>
+                    <option value="Paisley">Paisley</option>
+                    <option value="Perth">Perth</option>
+                    <option value="Galashiels">Galashiels (Borders)</option>
+                </select>
+                <small class="helper-text">Hold Ctrl (Cmd on Mac) and click to select multiple counties</small>
+            </div>
+
+            <div class="form-group">
+                <label>Counties (auto-filled from selections above, or enter manually)</label>
+                <textarea id="counties" placeholder="e.g., Essex, Greater London, Aberdeen, Edinburgh - Leave empty for all" rows="3"></textarea>
                 <button 
                     type="button" 
                     onclick="clearRegionFilter()" 
                     class="btn-secondary btn-small"
                     style="margin-top: 5px; padding: 8px 16px; font-size: 12px;"
                 >
-                    Clear Filter
+                    Clear All Filters
                 </button>
             </div>
 

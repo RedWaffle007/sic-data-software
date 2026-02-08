@@ -1,5 +1,10 @@
 """
 Central Configuration for Company Dataset Pipeline
+
+IMPORTANT: County Filtering Approach
+    - We use EXPLICIT CSV County field only (no postcode mapping)
+    - This ensures 100% accurate data but may result in fewer companies
+    - Companies without a county in the CSV will only be included if no county filter is applied
 """
 import os
 from pathlib import Path
@@ -18,9 +23,11 @@ LOGS_DIR.mkdir(parents=True, exist_ok=True)
 # Use "current" snapshot or fallback to a specific month
 CURRENT_SNAPSHOT = Path(os.getenv(
     "CURRENT_SNAPSHOT",
-    DATA_DIR / "2026-01" / "2026-01.csv"
+    DATA_DIR / "2026-02" / "2026-02.csv"
 ))
 
+# NSPL is included in config but NOT used for county mapping
+# Kept for potential future use or other reference data needs
 NSPL_PATH = Path(os.getenv(
     "NSPL_PATH",
     DATA_DIR / "reference" / "NSPL_AUG_2025_UK.csv"
@@ -60,8 +67,9 @@ def validate_config():
     if not CURRENT_SNAPSHOT.exists():
         errors.append(f"Snapshot file not found: {CURRENT_SNAPSHOT}")
 
-    if not NSPL_PATH.exists():
-        errors.append(f"NSPL file not found: {NSPL_PATH}")
+    # NSPL is optional now (not used for county mapping)
+    # if not NSPL_PATH.exists():
+    #     errors.append(f"NSPL file not found: {NSPL_PATH}")
 
     if not DATA_DIR.exists():
         errors.append(f"Data directory not found: {DATA_DIR}")

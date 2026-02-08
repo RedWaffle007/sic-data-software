@@ -39,13 +39,13 @@ ENRICHMENT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 FINAL_COL_ORDER = [
-    "CompanyNumber",
-    "BusinessName",
-    "AddressLine1",
-    "AddressLine2",
+    "Company Number",
+    "Business Name",
+    "Add1",
+    "Add2",
     "Town",
     "County",
-    "Postcode",
+    "Post Code",
     "PersonWithSignificantControl",
     "NatureOfControl",
     "Title",
@@ -289,7 +289,20 @@ def enrich_company_data(
     if resume and checkpoint_path.exists():
         logger.info("Resuming from checkpoint...")
         checkpoint_df = pl.read_parquet(checkpoint_path)
-        processed_numbers = set(checkpoint_df["CompanyNumber"].to_list())
+        
+        # Rename checkpoint columns if they exist with old names
+        checkpoint_rename = {
+            "CompanyNumber": "Company Number",
+            "BusinessName": "Business Name",
+        }
+        checkpoint_rename_dict = {old: new for old, new in checkpoint_rename.items() if old in checkpoint_df.columns}
+        if checkpoint_rename_dict:
+            checkpoint_df = checkpoint_df.rename(checkpoint_rename_dict)
+            logger.info(f"Renamed checkpoint columns: {list(checkpoint_rename_dict.keys())}")
+        
+        # Use the correct column name (after potential rename)
+        company_col = "Company Number" if "Company Number" in checkpoint_df.columns else "CompanyNumber"
+        processed_numbers = set(checkpoint_df[company_col].to_list())
         logger.info(f"Found {len(processed_numbers)} already processed companies")
     else:
         checkpoint_df = None
@@ -304,6 +317,17 @@ def enrich_company_data(
         if checkpoint_path.exists():
             logger.info(f"Writing final output from checkpoint to {output_path}")
             checkpoint_df = pl.read_parquet(checkpoint_path)
+            
+            # Rename columns in checkpoint before writing final output
+            final_rename = {
+                "CompanyNumber": "Company Number",
+                "BusinessName": "Business Name",
+            }
+            final_rename_dict = {old: new for old, new in final_rename.items() if old in checkpoint_df.columns}
+            if final_rename_dict:
+                checkpoint_df = checkpoint_df.rename(final_rename_dict)
+                logger.info(f"Renamed final output columns: {list(final_rename_dict.keys())}")
+            
             checkpoint_df.write_parquet(output_path, compression="zstd")
         else:
             raise FileNotFoundError("Checkpoint file not found, cannot produce output file")
@@ -468,6 +492,23 @@ def enrich_company_data(
         batch_rows.clear()
     else:
         result = checkpoint_df
+
+    # ===== Column renaming to match expected names =====
+    rename_mapping = {
+        "CompanyNumber": "Company Number",
+        "BusinessName": "Business Name",
+        "AddressLine1": "Add1",
+        "AddressLine2": "Add2",
+        "Town": "Town",
+        "County": "County",
+        "Postcode": "Post Code",
+    }
+
+    # Only rename columns that exist in the dataframe
+    rename_dict = {old: new for old, new in rename_mapping.items() if old in result.columns}
+    if rename_dict:
+        result = result.rename(rename_dict)
+        logger.info(f"Renamed columns: {list(rename_dict.keys())}")
 
     # ===== Column ordering =====
     existing_cols = set(result.columns)
